@@ -1,7 +1,7 @@
 package com.samtechblog.payloads;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import javax.validation.constraints.*;
 import java.util.Date;
 
@@ -13,7 +13,7 @@ public class UserDto{
 
     @NotEmpty(message = "Name not be empty.")
     @Size(min = 4, message = "Name must be min 4 character.")
-    private String userName;
+    private String userFullName;
 
     @Email(message = "Invalid Email")
     @NotEmpty(message = "Email not be empty.")

@@ -1,6 +1,7 @@
 package com.samtechblog.services.impl;
 
 import com.samtechblog.exceptions.ResourceNotFoundException;
+import com.samtechblog.exceptions.RoleNotFoundExceptionDemo;
 import com.samtechblog.models.Role;
 import com.samtechblog.payloads.RoleDto;
 import com.samtechblog.repositories.RoleRepository;
@@ -61,6 +62,11 @@ public class RoleServiceImpl implements RoleService {
         //get the role by using role id from the db
         Role role = this.roleRepository.findById(roleId).orElseThrow(()->new ResourceNotFoundException("Role","Id",roleId));
         return roleToRoleDto(role);
+    }
+
+    @Override
+    public Role getRoleByRoleName(String roleName) {
+        return this.roleRepository.findByRoleName(roleName).orElseThrow(()->new RoleNotFoundExceptionDemo("Role Not Found"));
     }
 
     public RoleDto roleToRoleDto(Role role){

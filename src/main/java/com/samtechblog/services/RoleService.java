@@ -1,5 +1,7 @@
 package com.samtechblog.services;
+import com.samtechblog.models.Role;
 import com.samtechblog.payloads.RoleDto;
+import javax.management.relation.RoleNotFoundException;
 import java.util.List;
 
 public interface RoleService {
@@ -8,4 +10,5 @@ public interface RoleService {
     void deleteRole(Integer roleId);
     List<RoleDto> getAllRole();
     RoleDto getRole(Integer roleId);
+    Role getRoleByRoleName(String roleName);
 }

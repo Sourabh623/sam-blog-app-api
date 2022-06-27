@@ -75,20 +75,20 @@ public class PostController {
         return new ResponseEntity<>(postDtoList, HttpStatus.OK);
     }
 
-    //delete post by id
-    @DeleteMapping("/posts/{postId}")
-    public ResponseEntity<APIResponse> deletePost(@PathVariable Integer postId)
-    {
-        this.postService.deletePost(postId);
-        return new ResponseEntity<APIResponse>(new APIResponse("Post is Deleted SuccessFully",true),HttpStatus.OK);
-    }
-
     //update post by id
     @PutMapping("/posts/{postId}")
     public ResponseEntity<PostDto> updatePost(@RequestBody PostDto postDto, @PathVariable Integer postId)
     {
         PostDto updatedPostDto = this.postService.updatePost(postDto, postId);
         return new ResponseEntity<PostDto>(updatedPostDto,HttpStatus.OK);
+    }
+
+    //delete post by id
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<APIResponse> deletePost(@PathVariable Integer postId)
+    {
+        this.postService.deletePost(postId);
+        return new ResponseEntity<APIResponse>(new APIResponse("Post is Deleted SuccessFully",true),HttpStatus.OK);
     }
 
     //get all posts
@@ -125,5 +125,4 @@ public class PostController {
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         StreamUtils.copy(resource,response.getOutputStream());
     }
-
 }

@@ -23,12 +23,14 @@ public class RoleController {
         RoleDto saveRoleDto = this.roleService.createRole(roleDto);
         return new ResponseEntity<RoleDto>(saveRoleDto, HttpStatus.CREATED);
     }
-    @PutMapping("/{roleId}")
-    public ResponseEntity<RoleDto> updateRole(@RequestBody RoleDto roleDto, @PathVariable Integer roleId)
+
+    @GetMapping("/")
+    public ResponseEntity<List<RoleDto>> getAllRole()
     {
-        RoleDto updateRoleDto = this.roleService.updateRole(roleDto, roleId);
-        return new ResponseEntity<RoleDto>(updateRoleDto, HttpStatus.OK);
+        List<RoleDto> roleDtoList = this.roleService.getAllRole();
+        return new ResponseEntity<>(roleDtoList, HttpStatus.OK);
     }
+
     @GetMapping("/{roleId}")
     public ResponseEntity<RoleDto> getRole(@PathVariable Integer roleId)
     {
@@ -36,11 +38,11 @@ public class RoleController {
         return new ResponseEntity<RoleDto>(roleDto, HttpStatus.OK);
     }
 
-    @GetMapping("/")
-    public ResponseEntity<List<RoleDto>> getAllRole()
+    @PutMapping("/{roleId}")
+    public ResponseEntity<RoleDto> updateRole(@RequestBody RoleDto roleDto, @PathVariable Integer roleId)
     {
-        List<RoleDto> roleDtoList = this.roleService.getAllRole();
-        return new ResponseEntity<>(roleDtoList, HttpStatus.OK);
+        RoleDto updateRoleDto = this.roleService.updateRole(roleDto, roleId);
+        return new ResponseEntity<RoleDto>(updateRoleDto, HttpStatus.OK);
     }
 
     @DeleteMapping("/{roleId}")

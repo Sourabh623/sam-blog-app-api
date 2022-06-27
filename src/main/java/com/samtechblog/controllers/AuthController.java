@@ -2,20 +2,24 @@ package com.samtechblog.controllers;
 
 
 import com.samtechblog.configurations.JwtTokenUtil;
-import com.samtechblog.models.User;
+import com.samtechblog.exceptions.ApiException;
+import com.samtechblog.exceptions.UserNotFoundException;
 import com.samtechblog.payloads.JwtAuthRequest;
 import com.samtechblog.payloads.JwtAuthResponse;
+import com.samtechblog.payloads.UserDto;
+import com.samtechblog.services.UserService;
+import com.samtechblog.services.impl.CustomUserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import javax.management.relation.RoleNotFoundException;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,42 +31,39 @@ public class AuthController {
     @Autowired
     AuthenticationManager authenticationManager;
 
+    @Autowired
+    CustomUserDetailService customUserDetailService;
+
+    @Autowired
+    UserService userService;
+
     //create a token
     @PostMapping("/login")
     public ResponseEntity<JwtAuthResponse> createAuthenticationToken(@RequestBody JwtAuthRequest jwtAuthRequest) throws Exception
     {
-        try
-        {
-            Authentication request = new UsernamePasswordAuthenticationToken(jwtAuthRequest.getEmail(), jwtAuthRequest.getPassword());
-            Authentication authenticate = authenticationManager.authenticate(request);
-
-            SecurityContextHolder.getContext().setAuthentication(authenticate);
-
-            System.out.println("Successfully authenticated. Security context contains: " +
-                    SecurityContextHolder.getContext().getAuthentication());
-
-            User user = (User) authenticate.getPrincipal();
-
-            JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
-            if(user!=null)
-            {
-                String token = this.jwtTokenUtil.generateToken(user);
-                System.out.println("my jwt token is "+token);
-                jwtAuthResponse.setJwtToken(token);
-            }
-            return new ResponseEntity<JwtAuthResponse>(jwtAuthResponse, HttpStatus.OK);
+        this.authenticate(jwtAuthRequest.getUsername(),jwtAuthRequest.getPassword());
+        UserDetails userDetails = this.customUserDetailService.loadUserByUsername(jwtAuthRequest.getUsername());
+        JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
+        String token = jwtTokenUtil.generateToken(userDetails);
+        //System.out.println("my jwt token is "+token);
+        jwtAuthResponse.setJwtToken(token);
+        return new ResponseEntity<JwtAuthResponse>(jwtAuthResponse, HttpStatus.OK);
+    }
+    public void authenticate(String username, String password)
+    {
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                new UsernamePasswordAuthenticationToken(username,password);
+        try {
+            authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+        }catch (BadCredentialsException e){
+            throw new ApiException("Invalid Password");
         }
-        catch (DisabledException e)
-        {
-            throw new Exception("USER_DISABLED", e);
-        }
-        catch (BadCredentialsException e)
-        {
-            throw new Exception("INVALID_CREDENTIALS", e);
-        }
-        catch(AuthenticationException e)
-        {
-            throw new Exception("Authentication failed", e);
-        }
+    }
+
+    //register user
+    @PostMapping("/register")
+    public ResponseEntity<UserDto> registerUser(@Valid @RequestBody UserDto userDto) throws RoleNotFoundException {
+        UserDto createUserDto = this.userService.createUser(userDto);
+        return new ResponseEntity<>(createUserDto, HttpStatus.CREATED);
     }
 }
